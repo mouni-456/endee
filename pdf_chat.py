@@ -1,66 +1,85 @@
 from sentence_transformers import SentenceTransformer
 import numpy as np
-import PyPDF2
-import os
 
 model = SentenceTransformer('all-MiniLM-L6-v2')
 
-def read_pdf(pdf_path):
-    text_chunks = []
-    with open(pdf_path, 'rb') as file:
-        reader = PyPDF2.PdfReader(file)
-        for page in reader.pages:
-            text = page.extract_text()
-            if text:
-                sentences = text.split('.')
-                for sentence in sentences:
-                    if len(sentence.strip()) > 20:
-                        text_chunks.append(sentence.strip())
-    return text_chunks
+documents = [
+    "Python developer with machine learning experience needed",
+    "Data scientist role requiring NLP and deep learning skills",
+    "AI engineer position working with vector databases",
+    "Software engineer building recommendation systems using AI",
+    "Backend developer with experience in REST APIs and Python",
+    "Machine learning engineer working on computer vision",
+    "Java developer with spring boot and microservices experience",
+    "Web developer with HTML CSS and JavaScript skills",
+    "Endee vector database is used for high performance AI search",
+    "Semantic search helps find meaning beyond exact keywords",
+    "Vector embeddings represent text as mathematical numbers",
+    "RAG systems combine vector search with language models",
+    "Python is best language for machine learning and AI",
+    "NLP helps computers understand human language",
+    "Deep learning uses neural networks to solve complex problems"
+]
 
-def chat_with_pdf(pdf_path):
-    print("="*55)
-    print("AI-Based Document Query System")
-    print("Powered by Endee Vector Database")
-    print("="*55)
+embeddings = model.encode(documents)
+
+# Chat History Memory
+chat_history = []
+
+def search(query, top_k=3):
+    query_embedding = model.encode([query])
+    similarities = np.dot(embeddings, query_embedding.T).flatten()
+    top_indices = np.argsort(similarities)[::-1][:top_k]
     
-    print(f"\nReading PDF: {pdf_path}")
-    chunks = read_pdf(pdf_path)
+    results = []
+    print(f"\nResults for: '{query}'")
+    print("-" * 45)
+    for i, idx in enumerate(top_indices):
+        score = similarities[idx] * 100
+        if score >= 50:
+            label = "[HIGH MATCH]"
+        elif score >= 30:
+            label = "[MEDIUM MATCH]"
+        else:
+            label = "[LOW MATCH]"
+        print(f"{i+1}. {documents[idx]}")
+        print(f"   Relevance: {score:.1f}% {label}")
+        results.append(documents[idx])
     
-    if not chunks:
-        print("Could not read PDF!")
+    # Save to memory
+    chat_history.append({
+        "question": query,
+        "top_result": results[0] if results else ""
+    })
+    return results
+
+def show_history():
+    if not chat_history:
+        print("\nNo history yet!")
         return
-    
-    print(f"Found {len(chunks)} text sections!")
-    print("Building search index...")
-    embeddings = model.encode(chunks)
-    print("Ready! Ask me anything about your PDF!\n")
-    
-    while True:
-        query = input("Your question (or quit to exit): ")
-        if query.lower() == 'quit':
-            print("Goodbye!")
-            break
-        
-        query_embedding = model.encode([query])
-        similarities = np.dot(embeddings, query_embedding.T).flatten()
-        top_indices = np.argsort(similarities)[::-1][:3]
-        
-        print(f"\nAnswer from PDF:")
-        print("-" * 45)
-        for i, idx in enumerate(top_indices):
-            score = similarities[idx] * 100
-            if score >= 30:
-                print(f"{i+1}. {chunks[idx]}")
-                print(f"   Relevance: {score:.1f}%")
-        print()
+    print("\n=== Your Chat History ===")
+    for i, item in enumerate(chat_history):
+        print(f"{i+1}. You asked: {item['question']}")
+        print(f"   Best result: {item['top_result']}")
+    print("="*45)
 
-pdf_file = input("Enter PDF file path (or press Enter for demo): ")
-if pdf_file == "":
-    print("\nDemo mode - No PDF uploaded")
-    print("In real use, provide a PDF path like: C:/Users/yourname/document.pdf")
-else:
-    if os.path.exists(pdf_file):
-        chat_with_pdf(pdf_file)
+print("="*55)
+print("Welcome to Mounika's AI Semantic Search Engine!")
+print("Powered by Endee Vector Database")
+print("With Chat History and Memory!")
+print("="*55)
+print("\nCommands:")
+print("   Type any question to search")
+print("   Type 'history' to see past searches")
+print("   Type 'quit' to exit")
+
+while True:
+    print()
+    query = input("Your question: ")
+    if query.lower() == 'quit':
+        print("Thank you for using Mounika's Search Engine!")
+        break
+    elif query.lower() == 'history':
+        show_history()
     else:
-        print("PDF file not found!")
+        search(query)
