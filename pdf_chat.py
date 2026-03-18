@@ -4,33 +4,39 @@ import numpy as np
 model = SentenceTransformer('all-MiniLM-L6-v2')
 
 documents = [
-    "Python developer with machine learning experience needed",
-    "Data scientist role requiring NLP and deep learning skills",
-    "AI engineer position working with vector databases",
-    "Software engineer building recommendation systems using AI",
-    "Backend developer with experience in REST APIs and Python",
-    "Machine learning engineer working on computer vision",
-    "Java developer with spring boot and microservices experience",
-    "Web developer with HTML CSS and JavaScript skills",
-    "Endee vector database is used for high performance AI search",
-    "Semantic search helps find meaning beyond exact keywords",
-    "Vector embeddings represent text as mathematical numbers",
-    "RAG systems combine vector search with language models",
-    "Python is best language for machine learning and AI",
-    "NLP helps computers understand human language",
-    "Deep learning uses neural networks to solve complex problems"
+    "Abstraction means hiding method implementation details and exposing method signature",
+    "Abstraction can be achieved by using interface or abstract class",
+    "Steps to achieve abstraction: create interface, abstract method, implementation class",
+    "Helper method name must be similar to interface name and begin with get",
+    "Inbuilt library consists of inbuilt classes and inbuilt interfaces",
+    "Java packages include java.lang, java.util, java.io",
+    "System.out.println uses System class, out variable and println method",
+    "String is a final class in java.lang package which cannot be inherited",
+    "String immutable property means string data cannot be changed",
+    "ArrayList maintains insertion order and allows duplicate objects",
+    "LinkedList memory blocks are scattered randomly in double linked fashion",
+    "ArrayList is faster when elements are added or removed at the end",
+    "LinkedList is faster when elements are added or removed in between",
+    "Vector objects are thread safe because methods are synchronized",
+    "Queue stores objects in FIFO fashion using LinkedList",
+    "Set does not allow duplicate objects and allows only one null value",
+    "HashSet is unordered, LinkedHashSet maintains insertion order, TreeSet sorting order",
+    "Wrapper classes represent primitive datatype as object",
+    "Boxing is converting primitive data into object, unboxing is converting back",
+    "Arrays are objects in Java with fixed size and homogeneous types",
+    "hashcode method returns hashcode number for object address",
+    "equals method compares objects based on object address",
+    "toString method returns complete information of current object",
 ]
 
 embeddings = model.encode(documents)
-
-# Chat History Memory
 chat_history = []
 
 def search(query, top_k=3):
     query_embedding = model.encode([query])
     similarities = np.dot(embeddings, query_embedding.T).flatten()
     top_indices = np.argsort(similarities)[::-1][:top_k]
-    
+
     results = []
     print(f"\nResults for: '{query}'")
     print("-" * 45)
@@ -45,8 +51,7 @@ def search(query, top_k=3):
         print(f"{i+1}. {documents[idx]}")
         print(f"   Relevance: {score:.1f}% {label}")
         results.append(documents[idx])
-    
-    # Save to memory
+
     chat_history.append({
         "question": query,
         "top_result": results[0] if results else ""
@@ -61,13 +66,12 @@ def show_history():
     for i, item in enumerate(chat_history):
         print(f"{i+1}. You asked: {item['question']}")
         print(f"   Best result: {item['top_result']}")
-    print("="*45)
+    print("=" * 45)
 
-print("="*55)
-print("Welcome to Mounika's AI Semantic Search Engine!")
+print("=" * 55)
+print("Welcome to Mounika's AI Java Notes Search!")
 print("Powered by Endee Vector Database")
-print("With Chat History and Memory!")
-print("="*55)
+print("=" * 55)
 print("\nCommands:")
 print("   Type any question to search")
 print("   Type 'history' to see past searches")
